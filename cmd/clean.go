@@ -1,40 +1,38 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2025 Viriathus1 viriathus1_dev@proton.me
 */
 package cmd
 
 import (
 	"fmt"
 
+	"github.com/Viriathus1/konmari/internal/cleaner"
 	"github.com/spf13/cobra"
+)
+
+var (
+	dir       string
+	olderThan int
+	dryRun    bool
 )
 
 // cleanCmd represents the clean command
 var cleanCmd = &cobra.Command{
 	Use:   "clean",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Clean up old files",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("clean called")
+		fmt.Printf("Cleaning %s files older than %d days (dry-run: %v)\n", dir, olderThan, dryRun)
+		err := cleaner.CleanUp(dir, olderThan, dryRun)
+		if err != nil {
+			fmt.Printf("Error during cleanup: %v", err)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(cleanCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// cleanCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// cleanCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	cleanCmd.Flags().StringVarP(&dir, "dir", "d", ".", "Target Directory")
+	cleanCmd.Flags().IntVar(&olderThan, "days", 30, "Delete files older than this amount of days")
+	cleanCmd.Flags().BoolVar(&dryRun, "dry-run", true, "Perform a dry run")
 }
