@@ -65,6 +65,35 @@ func TestCleanUpOldFiles(t *testing.T) {
 	}
 }
 
+func TestCleanUpOldFilesWithNegativeDays(t *testing.T) {
+	tempDir := t.TempDir()
+
+	oldFile := filepath.Join(tempDir, "old.txt")
+	newFile := filepath.Join(tempDir, "new.txt")
+
+	os.WriteFile(oldFile, []byte("unalive me"), 0644)
+	os.WriteFile(newFile, []byte("I'm staying where I am"), 0644)
+
+	oldTime := time.Now().AddDate(0, 0, -40)
+	err := os.Chtimes(oldFile, oldTime, oldTime)
+	if err != nil {
+		t.Fatalf("Failed to set old mod time: %v", err)
+	}
+
+	err = CleanUp(tempDir, -30, false)
+	if err != nil {
+		t.Fatalf("Clean up failed: %v", err)
+	}
+
+	if _, err := os.Stat(oldFile); !os.IsNotExist(err) {
+		t.Fatalf("Old file was not deleted: %v", err)
+	}
+
+	if _, err := os.Stat(newFile); os.IsNotExist(err) {
+		t.Fatalf("New file was deleted: %v", err)
+	}
+}
+
 func TestEmptyDirCleanUp(t *testing.T) {
 	tempDir := t.TempDir()
 

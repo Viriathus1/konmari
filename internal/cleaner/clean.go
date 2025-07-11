@@ -3,6 +3,7 @@ package cleaner
 import (
 	"fmt"
 	"io/fs"
+	"math"
 	"os"
 	"path/filepath"
 	"time"
@@ -11,7 +12,7 @@ import (
 func CleanUp(directory string, olderThan int, dryRun bool) error {
 	// get threshold time
 	now := time.Now()
-	threshold := now.AddDate(0, 0, -olderThan)
+	threshold := now.AddDate(0, 0, -int(math.Abs(float64(olderThan))))
 
 	// file walk through directories
 	err := filepath.Walk(directory, func(path string, info fs.FileInfo, err error) error {
