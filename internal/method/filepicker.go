@@ -10,19 +10,23 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type model struct {
-	fp           filepicker.Model
-	selectedFile string
-	quitting     bool
-	err          error
+type FilePickerModel struct {
+	fp            filepicker.Model
+	selectedFile  string
+	selectedFiles map[string]bool
+	quitting      bool
+	err           error
 }
 
 func NewFilePicker() tea.Model {
 	fp := filepicker.New()
-	fp.AllowedTypes = []string{"*"} // allow all
 	fp.CurrentDirectory, _ = os.Getwd()
+	fp.ShowHidden = true
 
-	return model{fp: fp}
+	return &FilePickerModel{
+		fp:            fp,
+		selectedFiles: make(map[string]bool),
+	}
 }
 
 type clearErrorMsg struct{}
@@ -33,11 +37,11 @@ func clearErrorAfter(t time.Duration) tea.Cmd {
 	})
 }
 
-func (m model) Init() tea.Cmd {
+func (m FilePickerModel) Init() tea.Cmd {
 	return m.fp.Init()
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m FilePickerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -56,6 +60,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if didSelect, path := m.fp.DidSelectFile(msg); didSelect {
 		// Get the path of the selected file.
 		m.selectedFile = path
+		m.selectedFiles[path] = true
 	}
 
 	// Did the user select a disabled file?
@@ -63,14 +68,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if didSelect, path := m.fp.DidSelectDisabledFile(msg); didSelect {
 		// Let's clear the selectedFile and display an error.
 		m.err = errors.New(path + " is not valid.")
-		m.selectedFile = ""
 		return m, tea.Batch(cmd, clearErrorAfter(2*time.Second))
 	}
 
 	return m, cmd
 }
 
-func (m model) View() string {
+func (m FilePickerModel) View() string {
 	if m.quitting {
 		return ""
 	}
@@ -81,8 +85,18 @@ func (m model) View() string {
 	} else if m.selectedFile == "" {
 		s.WriteString("Pick a file:")
 	} else {
-		s.WriteString("Selected file: " + m.fp.Styles.Selected.Render(m.selectedFile))
+		s.WriteString("Added file: " + m.fp.Styles.Selected.Render(m.selectedFile))
 	}
 	s.WriteString("\n\n" + m.fp.View() + "\n")
 	return s.String()
+}
+
+func (m FilePickerModel) SelectedPaths() []string {
+	var paths []string
+
+	for path := range m.selectedFiles {
+		paths = append(paths, path)
+	}
+
+	return paths
 }
