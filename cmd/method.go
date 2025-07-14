@@ -17,21 +17,21 @@ var methodCmd = &cobra.Command{
 	Use:   "method",
 	Short: "Launch the interactive Konmari Method",
 	Run: func(cmd *cobra.Command, args []string) {
-		finalModel, err := tea.NewProgram(method.NewFilePicker()).Run()
+		model, err := tea.NewProgram(method.NewFilePicker()).Run()
 		if err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
 		}
 
-		m, ok := finalModel.(method.FilePickerModel)
+		m, ok := model.(method.FilePickerModel)
 		if !ok {
 			fmt.Println("Couldn't extract selected paths.")
 		}
 
-		selectedPaths := m.SelectedPaths()
-		fmt.Printf("You selected (%d) paths:\n", len(selectedPaths))
-		for i, path := range selectedPaths {
-			fmt.Printf("%d - %s\n", i, path)
+		_, err = tea.NewProgram(method.NewListView(m.SelectedPaths())).Run()
+		if err != nil {
+			fmt.Printf("Alas, there's been an error: %v", err)
+			os.Exit(1)
 		}
 	},
 }

@@ -23,7 +23,7 @@ func NewFilePicker() tea.Model {
 	fp.CurrentDirectory, _ = os.Getwd()
 	fp.ShowHidden = true
 
-	return &FilePickerModel{
+	return FilePickerModel{
 		fp:            fp,
 		selectedFiles: make(map[string]bool),
 	}
