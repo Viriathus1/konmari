@@ -67,3 +67,16 @@ func (lv ListViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (lv ListViewModel) View() string {
 	return lv.list.View()
 }
+
+func (lv ListViewModel) SelectedPaths() []string {
+	var paths []string
+
+	for path, ok := range lv.selected {
+		if ok {
+			paths = append(paths, path)
+		}
+
+	}
+
+	return paths
+}

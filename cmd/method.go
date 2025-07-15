@@ -23,15 +23,24 @@ var methodCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		m, ok := model.(method.FilePickerModel)
+		fpm, ok := model.(method.FilePickerModel)
 		if !ok {
 			fmt.Println("Couldn't extract selected paths.")
 		}
 
-		_, err = tea.NewProgram(method.NewListView(m.SelectedPaths())).Run()
+		model, err = tea.NewProgram(method.NewListView(fpm.SelectedPaths())).Run()
 		if err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
+		}
+
+		lvm, ok := model.(method.ListViewModel)
+		if !ok {
+			fmt.Println("Couldn't extract selected paths.")
+		}
+
+		for i, path := range lvm.SelectedPaths() {
+			fmt.Printf("%d: %s\n", i, path)
 		}
 	},
 }
