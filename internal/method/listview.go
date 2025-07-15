@@ -23,20 +23,23 @@ type ListViewModel struct {
 
 func NewListView(paths []string) tea.Model {
 	items := []list.Item{}
+	selected := map[string]bool{}
 
 	for _, path := range paths {
 		fileInfo, err := os.Stat(path)
 		if err != nil || fileInfo.IsDir() {
 			return nil
 		}
+		selected[path] = true
 		items = append(items, fileItem{path: path, info: fileInfo})
 	}
 
-	l := list.New(items, list.NewDefaultDelegate(), 80, 20)
+	delegate := toggleDelegate{selected: selected}
+	l := list.New(items, delegate, 80, 20)
 	l.Title = "Select files to delete (space to toggle and enter to confirm)"
 	return ListViewModel{
 		list:     l,
-		selected: map[string]bool{},
+		selected: selected,
 	}
 }
 
@@ -62,6 +65,5 @@ func (lv ListViewModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (lv ListViewModel) View() string {
-	s := lv.list.View()
-	return s
+	return lv.list.View()
 }
