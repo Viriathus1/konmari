@@ -36,7 +36,7 @@ func NewListView(paths []string) tea.Model {
 
 	delegate := toggleDelegate{selected: selected}
 	l := list.New(items, delegate, 80, 20)
-	l.Title = "Which files don't spark joy?"
+	l.Title = "Which files spark joy?"
 	l.SetFilteringEnabled(false)
 	return ListViewModel{
 		list:     l,

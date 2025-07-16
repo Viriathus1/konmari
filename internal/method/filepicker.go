@@ -22,6 +22,8 @@ func NewFilePicker() tea.Model {
 	fp := filepicker.New()
 	fp.CurrentDirectory, _ = os.Getwd()
 	fp.ShowHidden = true
+	fp.Styles.Cursor = colourStyle
+	fp.Styles.Selected = colourStyle
 
 	return FilePickerModel{
 		fp:            fp,

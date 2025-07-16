@@ -7,14 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-)
-
-var (
-	dimmedStyle      = lipgloss.NewStyle().Faint(true)
-	normalStyle      = lipgloss.NewStyle()
-	descriptionStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
-	cursorStyle      = lipgloss.NewStyle().Bold(true)
 )
 
 type toggleDelegate struct {
@@ -38,7 +30,7 @@ func (d toggleDelegate) Render(w io.Writer, m list.Model, index int, item list.I
 
 	cursor := "  "
 	if index == m.Index() {
-		cursor = cursorStyle.Render("> ")
+		cursor = colourStyle.Render("> ")
 	}
 
 	// Apply dimming if unselected
