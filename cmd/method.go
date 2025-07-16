@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Viriathus1/konmari/internal/cleaner"
 	"github.com/Viriathus1/konmari/internal/method"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
@@ -26,9 +27,16 @@ var methodCmd = &cobra.Command{
 		fpm, ok := model.(method.FilePickerModel)
 		if !ok {
 			fmt.Println("Couldn't extract selected paths.")
+			os.Exit(1)
 		}
 
-		model, err = tea.NewProgram(method.NewListView(fpm.SelectedPaths())).Run()
+		potentialPaths := fpm.SelectedPaths()
+		if len(potentialPaths) <= 0 {
+			fmt.Println("No files selected.")
+			return
+		}
+
+		model, err = tea.NewProgram(method.NewListView(potentialPaths)).Run()
 		if err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
@@ -37,24 +45,13 @@ var methodCmd = &cobra.Command{
 		lvm, ok := model.(method.ListViewModel)
 		if !ok {
 			fmt.Println("Couldn't extract selected paths.")
+			os.Exit(1)
 		}
 
-		for i, path := range lvm.SelectedPaths() {
-			fmt.Printf("%d: %s\n", i, path)
-		}
+		cleaner.DeleteFiles(lvm.SelectedPaths(), false)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(methodCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// methodCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// methodCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -36,7 +36,7 @@ func NewListView(paths []string) tea.Model {
 
 	delegate := toggleDelegate{selected: selected}
 	l := list.New(items, delegate, 80, 20)
-	l.Title = "Select files to delete (space to toggle and enter to confirm)"
+	l.Title = "Do they spark joy? (space to toggle and enter to confirm)"
 	return ListViewModel{
 		list:     l,
 		selected: selected,
