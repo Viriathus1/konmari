@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -51,4 +52,17 @@ func (d toggleDelegate) Render(w io.Writer, m list.Model, index int, item list.I
 	desc := descriptionStyle.Render(it.Description())
 
 	fmt.Fprintf(w, "%s%s\n  %s\n", cursor, line, desc)
+}
+
+func (d toggleDelegate) ShortHelp() []key.Binding {
+	return []key.Binding{
+		toggleKey,
+		selectKey,
+	}
+}
+
+func (d toggleDelegate) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{toggleKey, selectKey},
+	}
 }
